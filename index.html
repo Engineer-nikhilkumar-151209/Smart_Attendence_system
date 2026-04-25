@@ -3,690 +3,728 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WhatsApp Bulk Sender – Central Pharmacy</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>DropBeam</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
-  :root {
-    --green: #25D366;
-    --dark-green: #128C7E;
-    --light-green: #DCF8C6;
-    --bg: #0f1117;
-    --surface: #1a1f2e;
-    --surface2: #222840;
-    --border: #2e3650;
-    --text: #e8eaf6;
-    --muted: #7b82a0;
-    --accent: #25D366;
-  }
+:root {
+  --bg: #0d0d14;
+  --card: #161622;
+  --border: #252538;
+  --accent: #5e6ad2;
+  --accent-glow: rgba(94,106,210,.25);
+  --green: #3dd68c;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --text: #e2e2f0;
+  --sub: #6b6b8f;
+  --r: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Space Grotesk',sans-serif;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px 14px 60px;
+}
+/* subtle dot grid */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:radial-gradient(rgba(94,106,210,.12) 1px,transparent 1px);
+  background-size:28px 28px;
+  pointer-events:none;z-index:0;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+.shell{position:relative;z-index:1;width:100%;max-width:520px;}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+/* ─── HEADER ─── */
+.hdr{text-align:center;padding:10px 0 28px;}
+.logo{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1;}
+.logo em{font-style:normal;color:var(--accent);}
+.sub{font-family:'Fira Code',monospace;font-size:10px;color:var(--sub);letter-spacing:2px;text-transform:uppercase;margin-top:5px;}
 
-  header {
-    background: linear-gradient(135deg, #0d1f16 0%, #0f2d1e 60%, #0a1a28 100%);
-    padding: 22px 32px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    border-bottom: 1px solid #1e3a2a;
-  }
+/* ─── MODE TOGGLE ─── */
+.mode-row{display:flex;gap:8px;margin-bottom:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:5px;}
+.mode-btn{flex:1;padding:10px;border:none;background:transparent;color:var(--sub);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;border-radius:9px;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.5px;}
+.mode-btn.active{background:var(--accent);color:#fff;box-shadow:0 0 18px var(--accent-glow);}
 
-  .wa-icon {
-    width: 44px; height: 44px;
-    background: var(--green);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-  }
+/* ─── CARD ─── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+.card-title{font-family:'Fira Code',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--sub);margin-bottom:12px;}
 
-  header h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.3px;
-  }
+/* ─── ROOM INPUT ─── */
+.room-row{display:flex;gap:8px;align-items:center;}
+.room-in{
+  flex:1;background:var(--bg);border:1px solid var(--border);border-radius:9px;
+  padding:11px 14px;color:var(--accent);font-family:'Fira Code',monospace;
+  font-size:16px;font-weight:500;letter-spacing:3px;text-transform:uppercase;
+  outline:none;transition:border-color .2s;
+}
+.room-in:focus{border-color:var(--accent);}
+.room-in::placeholder{color:var(--border);letter-spacing:1px;}
+.btn-sm{
+  background:var(--border);border:none;color:var(--text);
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  padding:11px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.5px;transition:background .2s;
+}
+.btn-sm:hover{background:var(--accent);color:#fff;}
 
-  header p { font-size: 0.8rem; color: #7fba97; margin-top: 2px; }
+/* pill indicator */
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:99px;font-family:'Fira Code',monospace;
+  font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;
+  border:1px solid var(--border);color:var(--sub);margin-top:10px;
+}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--sub);}
+.pill.on{border-color:var(--green);color:var(--green);}
+.pill.on .dot{background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 1.4s infinite;}
+.pill.err{border-color:var(--red);color:var(--red);}
+.pill.err .dot{background:var(--red);}
+.pill.wait{border-color:var(--yellow);color:var(--yellow);}
+.pill.wait .dot{background:var(--yellow);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-  .container { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+/* ─── DROP ZONE ─── */
+.dz{
+  border:2px dashed var(--border);border-radius:var(--r);
+  padding:32px 16px;text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;background:var(--bg);
+}
+.dz.over{border-color:var(--accent);background:var(--accent-glow);}
+.dz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dz-icon{font-size:32px;display:block;margin-bottom:10px;}
+.dz-text{font-size:13px;color:var(--sub);}
+.dz-text b{color:var(--text);display:block;margin-bottom:3px;font-size:15px;}
 
-  .layout { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+/* file bar */
+.fbar{display:none;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:12px;}
+.fbar.show{display:flex;}
+.fbar-icon{font-size:24px;}
+.fbar-info{flex:1;min-width:0;}
+.fbar-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fbar-size{font-family:'Fira Code',monospace;font-size:10px;color:var(--sub);margin-top:2px;}
+.fbar-rm{background:none;border:none;color:var(--red);font-size:16px;cursor:pointer;padding:2px 6px;}
 
-  /* ---- Contacts Panel ---- */
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-  }
+/* image thumb */
+.img-pre{display:none;max-width:100%;max-height:150px;border-radius:9px;margin-bottom:12px;border:1px solid var(--border);}
+.img-pre.show{display:block;margin:0 auto 12px;}
 
-  .panel-header {
-    padding: 16px 20px;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
+/* text area */
+.txa{
+  width:100%;min-height:90px;resize:vertical;
+  background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);font-family:'Fira Code',monospace;font-size:13px;
+  padding:12px;outline:none;transition:border-color .2s;
+}
+.txa:focus{border-color:var(--accent);}
+.txa::placeholder{color:var(--border);}
 
-  .panel-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--text);
-  }
+/* progress */
+.prog-wrap{display:none;margin-top:10px;}
+.prog-wrap.show{display:block;}
+.prog-bg{background:var(--border);border-radius:99px;height:5px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:99px;width:0%;transition:width .2s;}
+.prog-lbl{font-family:'Fira Code',monospace;font-size:10px;color:var(--sub);text-align:center;margin-top:5px;}
 
-  .badge {
-    background: var(--green);
-    color: #000;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 2px 9px;
-    border-radius: 20px;
-  }
+/* main button */
+.btn-main{
+  width:100%;padding:15px;border:none;border-radius:var(--r);
+  font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-main.send-btn{background:var(--accent);color:#fff;box-shadow:0 0 20px var(--accent-glow);}
+.btn-main.send-btn:active{transform:scale(.97);}
+.btn-main.send-btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+.btn-main.send-btn.ok{background:var(--green);box-shadow:0 0 20px rgba(61,214,140,.25);}
+.btn-main.recv-btn{background:transparent;border:2px solid var(--accent);color:var(--accent);}
+.btn-main.recv-btn.listening{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-main.recv-btn:active{transform:scale(.97);}
 
-  .search-bar {
-    padding: 10px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
+.status-msg{text-align:center;font-family:'Fira Code',monospace;font-size:11px;margin-top:10px;min-height:16px;}
+.status-msg.ok{color:var(--green);}
+.status-msg.err{color:var(--red);}
+.status-msg.info{color:var(--accent);}
 
-  .search-bar input {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    outline: none;
-  }
+/* ─── INBOX ─── */
+.inbox-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.inbox-title{font-family:'Fira Code',monospace;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--sub);}
+.badge{background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;}
+.btn-clr{margin-left:auto;background:none;border:1px solid var(--border);color:var(--sub);font-family:'Fira Code',monospace;font-size:10px;padding:4px 10px;border-radius:7px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .2s;}
+.btn-clr:hover{border-color:var(--red);color:var(--red);}
 
-  .search-bar input:focus { border-color: var(--green); }
+.packets{display:flex;flex-direction:column;gap:10px;}
+.pkt{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;animation:pop .25s ease;
+}
+.pkt.fresh{border-color:var(--accent);}
+@keyframes pop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.pkt-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.pkt-ico{font-size:20px;}
+.pkt-time{font-family:'Fira Code',monospace;font-size:10px;color:var(--sub);flex:1;}
+.pkt-new{background:var(--accent);color:#fff;font-family:'Fira Code',monospace;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:1px;}
+.pkt-msg{
+  font-family:'Fira Code',monospace;font-size:12px;line-height:1.6;
+  color:var(--text);background:rgba(94,106,210,.07);
+  border-left:3px solid var(--accent);padding:9px 11px;
+  border-radius:0 8px 8px 0;white-space:pre-wrap;word-break:break-word;
+  user-select:text;margin-bottom:8px;
+}
+.btn-cp{
+  background:var(--border);border:none;color:var(--sub);
+  font-family:'Fira Code',monospace;font-size:10px;
+  padding:5px 10px;border-radius:6px;cursor:pointer;
+  transition:all .2s;letter-spacing:.5px;
+}
+.btn-cp:hover{background:var(--accent);color:#fff;}
+.pkt-file{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:9px;padding:10px;
+}
+.pkt-file-ico{font-size:24px;}
+.pkt-finfo{flex:1;min-width:0;}
+.pkt-fname{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pkt-ftype{font-family:'Fira Code',monospace;font-size:10px;color:var(--sub);margin-top:2px;}
+.btn-dl{
+  background:var(--accent);color:#fff;border:none;border-radius:7px;
+  font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  padding:7px 12px;cursor:pointer;text-decoration:none;
+  text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.btn-dl:hover{opacity:.85;}
+.pkt-img{max-width:100%;max-height:260px;border-radius:8px;margin-top:10px;border:1px solid var(--border);display:block;}
 
-  .select-bar {
-    padding: 8px 20px;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    font-size: 0.8rem;
-  }
+.empty-state{text-align:center;padding:40px 20px;color:var(--sub);font-family:'Fira Code',monospace;font-size:12px;}
+.empty-state span{font-size:40px;display:block;margin-bottom:12px;opacity:.4;}
 
-  .select-bar button {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--muted);
-    padding: 3px 10px;
-    cursor: pointer;
-    font-size: 0.78rem;
-    transition: all .2s;
-  }
-
-  .select-bar button:hover { border-color: var(--green); color: var(--green); }
-
-  .selected-count { color: var(--green); font-weight: 600; margin-left: auto; }
-
-  .contacts-list {
-    max-height: 480px;
-    overflow-y: auto;
-  }
-
-  .contacts-list::-webkit-scrollbar { width: 5px; }
-  .contacts-list::-webkit-scrollbar-track { background: var(--surface); }
-  .contacts-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  .contact-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 20px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    transition: background .15s;
-  }
-
-  .contact-item:hover { background: var(--surface2); }
-  .contact-item.selected { background: #0d2218; }
-
-  .contact-item input[type=checkbox] {
-    accent-color: var(--green);
-    width: 16px; height: 16px;
-    flex-shrink: 0;
-  }
-
-  .avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1a4a30, #0d2d20);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.78rem;
-    color: var(--green);
-    flex-shrink: 0;
-  }
-
-  .contact-info { flex: 1; min-width: 0; }
-  .contact-name { font-size: 0.88rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .contact-phone { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
-
-  .contact-tags { display: flex; gap: 4px; flex-wrap: wrap; }
-  .tag {
-    font-size: 0.67rem;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-  }
-  .tag-kia { background: #1a2a40; color: #5b9bd5; }
-  .tag-raxa { background: #2a1a30; color: #c580e0; }
-  .tag-bigbasket { background: #2a1a10; color: #e0a050; }
-
-  /* ---- Right Panel ---- */
-  .right-panel { display: flex; flex-direction: column; gap: 18px; }
-
-  .message-box { flex: 1; }
-
-  textarea#msgTemplate {
-    width: 100%;
-    min-height: 180px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    line-height: 1.6;
-    resize: vertical;
-    outline: none;
-    transition: border-color .2s;
-  }
-
-  textarea#msgTemplate:focus { border-color: var(--green); }
-
-  .hint {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 7px;
-    line-height: 1.5;
-  }
-
-  .hint code {
-    background: var(--surface2);
-    padding: 1px 5px;
-    border-radius: 4px;
-    color: var(--green);
-    font-size: 0.78rem;
-  }
-
-  /* Preview */
-  .preview-bubble {
-    background: var(--light-green);
-    color: #111;
-    border-radius: 12px 12px 4px 12px;
-    padding: 12px 16px;
-    font-size: 0.85rem;
-    line-height: 1.6;
-    min-height: 60px;
-    white-space: pre-wrap;
-    word-break: break-word;
-    position: relative;
-    margin-top: 4px;
-  }
-
-  .preview-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: 0; right: -8px;
-    border: 8px solid transparent;
-    border-bottom-color: var(--light-green);
-    border-right: none;
-  }
-
-  /* Send button */
-  .send-btn {
-    width: 100%;
-    padding: 14px;
-    background: var(--green);
-    border: none;
-    border-radius: 10px;
-    color: #000;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all .2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .send-btn:hover { background: #20c55a; transform: translateY(-1px); }
-  .send-btn:disabled { background: #2e4a38; color: #5a7a62; cursor: not-allowed; transform: none; }
-
-  /* Progress */
-  .progress-section { display: none; }
-  .progress-section.active { display: block; }
-
-  .progress-bar-wrap {
-    background: var(--surface2);
-    border-radius: 8px;
-    height: 8px;
-    overflow: hidden;
-    margin: 10px 0;
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green), #20e070);
-    border-radius: 8px;
-    transition: width .4s;
-    width: 0%;
-  }
-
-  .progress-text { font-size: 0.82rem; color: var(--muted); }
-
-  .log-box {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    max-height: 150px;
-    overflow-y: auto;
-    font-size: 0.78rem;
-    font-family: monospace;
-    color: #7fba97;
-    margin-top: 10px;
-  }
-
-  .log-entry { padding: 2px 0; border-bottom: 1px solid #151b2a; }
-  .log-entry.err { color: #e07070; }
-
-  /* Add contact */
-  .add-contact-row {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .add-contact-row input {
-    flex: 1;
-    min-width: 100px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    color: var(--text);
-    font-size: 0.83rem;
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-  }
-
-  .add-contact-row input:focus { border-color: var(--green); }
-
-  .add-contact-row button {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--green);
-    padding: 8px 14px;
-    cursor: pointer;
-    font-size: 0.83rem;
-    font-weight: 600;
-    transition: all .2s;
-    white-space: nowrap;
-  }
-
-  .add-contact-row button:hover { background: #1a3a28; }
-
-  label.field-label {
-    display: block;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 7px;
-  }
-
-  .delay-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
-
-  .delay-row input[type=range] { accent-color: var(--green); width: 100px; }
-  .delay-row span { color: var(--green); font-weight: 600; min-width: 50px; }
-
-  @media (max-width: 780px) {
-    .layout { grid-template-columns: 1fr; }
-    .contacts-list { max-height: 320px; }
-  }
+/* ─── HOW TO USE ─── */
+.howto{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.howto-title{font-family:'Fira Code',monospace;font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--sub);margin-bottom:10px;}
+.step{display:flex;gap:10px;margin-bottom:8px;font-size:13px;color:var(--sub);}
+.step:last-child{margin-bottom:0;}
+.step-n{
+  width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;
+  font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.step b{color:var(--text);}
 </style>
 </head>
 <body>
+<div class="shell">
 
-<header>
-  <div class="wa-icon">💬</div>
-  <div>
-    <h1>WhatsApp Bulk Sender</h1>
-    <p>Central Pharmacy · Personalized Messages</p>
+  <div class="hdr">
+    <div class="logo">Drop<em>Beam</em></div>
+    <div class="sub">phone ↔ pc · no signup needed</div>
   </div>
-</header>
 
-<div class="container">
-  <div class="layout">
+  <!-- HOW TO USE -->
+  <div class="howto" id="howto">
+    <div class="howto-title">How to use</div>
+    <div class="step"><div class="step-n">1</div><div>Open this page on <b>your PC</b> → choose <b>Receive</b> → press <b>Start Listening</b></div></div>
+    <div class="step"><div class="step-n">2</div><div>Open this page on <b>your phone/netbook</b> → choose <b>Send</b> → enter the <b>Room ID</b> shown on your PC</div></div>
+    <div class="step"><div class="step-n">3</div><div>Attach any file or type a message → hit <b>Send</b> — it appears on your PC instantly</div></div>
+  </div>
 
-    <!-- LEFT: Contacts -->
-    <div>
-      <div class="panel">
-        <div class="panel-header">
-          <span class="panel-title">Contacts</span>
-          <span class="badge" id="totalBadge">0</span>
-          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
-            <label class="field-label" style="margin:0">Add new:</label>
-          </div>
+  <!-- MODE -->
+  <div class="mode-row">
+    <button class="mode-btn active" id="btn-mode-send" onclick="setMode('send')">📤 Send</button>
+    <button class="mode-btn" id="btn-mode-recv" onclick="setMode('recv')">📥 Receive</button>
+  </div>
+
+  <!-- ═══ SEND PANEL ═══ -->
+  <div id="panel-send">
+    <div class="card">
+      <div class="card-title">Room ID (enter the code shown on your PC)</div>
+      <div class="room-row">
+        <input class="room-in" id="s-room" maxlength="12" placeholder="ABC123" spellcheck="false">
+      </div>
+      <div id="s-pill" class="pill"><span class="dot"></span><span id="s-pill-txt">Not connected</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Attach a file (optional)</div>
+      <div class="dz" id="dz">
+        <input type="file" id="file-in" onchange="onFile(this.files[0])">
+        <span class="dz-icon">📎</span>
+        <div class="dz-text"><b>Tap to choose a file</b>or drag & drop</div>
+      </div>
+      <img class="img-pre" id="img-pre" alt="">
+      <div class="fbar" id="fbar">
+        <span class="fbar-icon" id="fbar-ico">📄</span>
+        <div class="fbar-info">
+          <div class="fbar-name" id="fbar-name"></div>
+          <div class="fbar-size" id="fbar-size"></div>
         </div>
-
-        <!-- Add contact -->
-        <div style="padding:12px 20px;border-bottom:1px solid var(--border);background:var(--surface2);">
-          <div class="add-contact-row">
-            <input type="text" id="newName" placeholder="Full Name" />
-            <input type="tel" id="newPhone" placeholder="Phone (10 digits)" maxlength="12" />
-            <input type="text" id="newTag" placeholder="Tag (optional)" style="max-width:100px;" />
-            <button onclick="addContact()">+ Add</button>
-          </div>
-        </div>
-
-        <div class="search-bar">
-          <input type="text" id="searchInput" placeholder="🔍  Search contacts..." oninput="renderContacts()" />
-        </div>
-
-        <div class="select-bar">
-          <button onclick="selectAll()">Select All</button>
-          <button onclick="deselectAll()">Deselect All</button>
-          <span class="selected-count" id="selectedCount">0 selected</span>
-        </div>
-
-        <div class="contacts-list" id="contactsList"></div>
+        <button class="fbar-rm" onclick="clearFile()">✕</button>
       </div>
     </div>
 
-    <!-- RIGHT: Message & Send -->
-    <div class="right-panel">
+    <div class="card">
+      <div class="card-title">Message (optional)</div>
+      <textarea class="txa" id="s-msg" placeholder="Type anything here…"></textarea>
+    </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <span class="panel-title">Message Template</span>
-        </div>
-        <div style="padding:16px;">
-          <label class="field-label">Template (use {name} for personalization)</label>
-          <textarea id="msgTemplate" placeholder="Type your message here...
-Use {name} where you want the contact's name to appear.
+    <div class="prog-wrap" id="prog-wrap">
+      <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-lbl" id="prog-lbl">Sending…</div>
+    </div>
 
-Example:
-Hello {name}, this is a reminder from Central Pharmacy. Please collect your medicines. Thank you!">Hello {name}, this is a reminder from Central Pharmacy. Please collect your medicines at the earliest. Thank you! 🙏</textarea>
-          <p class="hint">Use <code>{name}</code> — it will be replaced with each contact's name automatically.</p>
+    <button class="btn-main send-btn" id="btn-send" onclick="doSend()">⚡ Send to PC</button>
+    <div class="status-msg" id="s-status"></div>
+  </div>
 
-          <label class="field-label" style="margin-top:14px;">Live Preview</label>
-          <div class="preview-bubble" id="previewBubble">Preview will appear here...</div>
-        </div>
+  <!-- ═══ RECEIVE PANEL ═══ -->
+  <div id="panel-recv" style="display:none;">
+    <div class="card">
+      <div class="card-title">Your Room ID — share this with the sender</div>
+      <div class="room-row">
+        <input class="room-in" id="r-room" readonly placeholder="Generating…" style="cursor:default;">
+        <button class="btn-sm" onclick="copyRoomId()">Copy</button>
+        <button class="btn-sm" onclick="newRoom()">New</button>
       </div>
+      <div id="r-pill" class="pill wait"><span class="dot"></span><span id="r-pill-txt">Starting…</span></div>
+    </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <span class="panel-title">Delay Between Messages</span>
-        </div>
-        <div style="padding:14px 16px;">
-          <div class="delay-row">
-            <span>Delay:</span>
-            <input type="range" id="delayRange" min="3" max="30" value="5" oninput="document.getElementById('delayVal').textContent=this.value+'s'" />
-            <span id="delayVal">5s</span>
-            <span style="font-size:0.75rem;">(avoids WhatsApp spam detection)</span>
-          </div>
-        </div>
-      </div>
+    <button class="btn-main recv-btn" id="btn-listen" onclick="toggleListen()">▶ Start Listening</button>
+    <div class="status-msg" id="r-status"></div>
 
-      <button class="send-btn" id="sendBtn" onclick="startSending()">
-        <span>📤</span> Send to Selected Contacts
-      </button>
-
-      <div class="panel progress-section" id="progressSection">
-        <div class="panel-header">
-          <span class="panel-title">Sending Progress</span>
-        </div>
-        <div style="padding:14px 16px;">
-          <div class="progress-text" id="progressText">Ready...</div>
-          <div class="progress-bar-wrap">
-            <div class="progress-bar-fill" id="progressFill"></div>
-          </div>
-          <div class="log-box" id="logBox"></div>
-        </div>
-      </div>
-
+    <div style="height:18px;"></div>
+    <div class="inbox-hdr">
+      <span class="inbox-title">Inbox</span>
+      <span class="badge" id="inbox-count">0</span>
+      <button class="btn-clr" onclick="clearInbox()">Clear</button>
+    </div>
+    <div class="packets" id="packets">
+      <div class="empty-state" id="empty"><span>📭</span>Nothing yet. Start listening and send something from your phone.</div>
     </div>
   </div>
+
 </div>
 
 <script>
-// ─── ALL CONTACTS FROM THE HANDWRITTEN LISTS ───
-let contacts = [
-  // Image 1 – Central Pharmacy (page 27)
-  { id:1,  name:"T. Sailaja",       phone:"9121532998", tags:[] },
-  { id:2,  name:"S. Haritha",       phone:"9573765562", tags:[] },
-  { id:3,  name:"M. Vani",          phone:"9492841183", tags:[] },
-  { id:4,  name:"B. Bharathi",      phone:"8639231402", tags:[] },
-  { id:5,  name:"I. Sateesh",       phone:"8374542793", tags:[] },
-  { id:6,  name:"A. Swathi",        phone:"9346886370", tags:[] },
-  { id:7,  name:"D. Sruthi",        phone:"8019527312", tags:[] },
-  { id:8,  name:"P. Prathima",      phone:"9553883682", tags:[] },
-  { id:9,  name:"K. Aanandh Raju",  phone:"6302233844", tags:["RAXA"] },
-  { id:10, name:"A. Sivasai",       phone:"9533334028", tags:[] },
-  { id:11, name:"Ch. Akhil Kumar",  phone:"8978848211", tags:["RAXA","BigBasket"] },
-  { id:12, name:"K. Prasanna Raju", phone:"9398231672", tags:["RAXA","KIA","BigBasket"] },
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let mode = 'send';
+let peer = null;
+let conn = null;         // sender side connection
+let recvPeer = null;     // receiver Peer instance
+let recvConns = [];      // receiver incoming connections
+let isListening = false;
+let selectedFile = null;
+let inboxCount = 0;
+let fileChunks = {};     // for chunked file transfer
 
-  // Image 2 – Central Pharmacy (cont.)
-  { id:13, name:"B. Aparna",        phone:"9381996904", tags:[] },
-  { id:14, name:"B. Yamini",        phone:"6302230930", tags:[] },
-  { id:15, name:"P. Sudha",         phone:"7484234565", tags:[] },
-  { id:16, name:"K. Harika",        phone:"7195025159", tags:[] },
-  { id:17, name:"Ch. Pojitha",      phone:"6305020831", tags:[] },
-  { id:18, name:"P. Suryakumar",    phone:"9616292310", tags:[] },
-  { id:19, name:"V. Janaki",        phone:"6302981851", tags:[] },
-  { id:20, name:"S. Hemalatha",     phone:"9959438307", tags:[] },
-  { id:21, name:"I. Javaraju",      phone:"9848500568", tags:[] },
-  { id:22, name:"K. Hemalatha",     phone:"9573118643", tags:[] },
-  { id:23, name:"B. Raju",          phone:"9573118643", tags:[] },
-  { id:24, name:"D. Bamgaramma",    phone:"7416998702", tags:[] },
-  { id:25, name:"G. Rajeswari",     phone:"9676173833", tags:[] },
-  { id:26, name:"A. Tulasi",        phone:"7396946465", tags:[] },
-  { id:27, name:"V. Hemalatha",     phone:"8369957698", tags:[] },
+const CHUNK = 64 * 1024; // 64 KB chunks
 
-  // Image 3
-  { id:28, name:"R. Pattanna",      phone:"8121113362", tags:[] },
-  { id:29, name:"V. Sowrangi",      phone:"8998132012", tags:[] },
-  { id:30, name:"P. Vamsi",         phone:"8179493146", tags:[] },
-  { id:31, name:"R. Jayprakash",    phone:"7396553764", tags:[] },
-  { id:32, name:"K. Prasad",        phone:"9182422929", tags:[] },
-  { id:33, name:"K. Namshidhra",    phone:"7382465017", tags:[] },
-  { id:34, name:"U. Chandrarao",    phone:"6350514990", tags:[] },
-  { id:35, name:"K. Naseem Kumar",  phone:"7013815196", tags:[] },
-  { id:36, name:"A. Prasad",        phone:"9450550013", tags:[] },
-  { id:37, name:"G. Saikiran",      phone:"9398531688", tags:[] },
-  { id:38, name:"S. Suresh",        phone:"7383782784", tags:[] },
-  { id:39, name:"K. Premkumar",     phone:"7285512023", tags:[] },
-  { id:40, name:"A. Tajbabu",       phone:"6281531487", tags:[] },
-
-  // Image 4 – KIA list
-  { id:41, name:"A. Abdul Tajbabu", phone:"6281531484", tags:["KIA"] },
-  { id:42, name:"Fardeen Mablan",   phone:"7125174016", tags:["KIA"] },
-  { id:43, name:"P. Jayaram",       phone:"6309483678", tags:["KIA"] },
-  { id:44, name:"K. Appanna",       phone:"",           tags:["KIA"] },
-  { id:45, name:"I. Satish",        phone:"7121258763", tags:["KIA"] },
-  { id:46, name:"Ramakrishna",      phone:"8374542783", tags:["KIA"] },
-  { id:47, name:"D. Sai Kumar",     phone:"7033410025", tags:["KIA"] },
-  { id:48, name:"M. Sivakumar",     phone:"6305102577", tags:["KIA"] },
-  { id:49, name:"G. Chandrarao",    phone:"8195812513", tags:["KIA"] },
-];
-
-let selected = new Set();
-let nextId = 100;
-
-function getInitials(name) {
-  const parts = name.trim().split(/[\s.]+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[parts.length-2][0] + parts[parts.length-1][0]).toUpperCase();
-  return name.slice(0,2).toUpperCase();
+// ─────────────────────────────────────────────
+// Mode switch
+// ─────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  document.getElementById('panel-send').style.display = m === 'send' ? '' : 'none';
+  document.getElementById('panel-recv').style.display = m === 'recv' ? '' : 'none';
+  document.getElementById('btn-mode-send').classList.toggle('active', m === 'send');
+  document.getElementById('btn-mode-recv').classList.toggle('active', m === 'recv');
+  if (m === 'recv' && !recvPeer) initReceiver();
 }
 
-function renderContacts() {
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  const filtered = contacts.filter(c =>
-    c.name.toLowerCase().includes(q) || c.phone.includes(q) ||
-    c.tags.some(t => t.toLowerCase().includes(q))
-  );
-  const list = document.getElementById('contactsList');
-  list.innerHTML = '';
-  filtered.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'contact-item' + (selected.has(c.id) ? ' selected' : '');
-    div.onclick = () => { toggle(c.id); };
-    const tagHtml = c.tags.map(t => {
-      const cls = t==='KIA'?'tag-kia':t==='RAXA'?'tag-raxa':'tag-bigbasket';
-      return `<span class="tag ${cls}">${t}</span>`;
-    }).join('');
-    div.innerHTML = `
-      <input type="checkbox" ${selected.has(c.id)?'checked':''} onclick="event.stopPropagation();toggle(${c.id})" />
-      <div class="avatar">${getInitials(c.name)}</div>
-      <div class="contact-info">
-        <div class="contact-name">${c.name}</div>
-        <div class="contact-phone">${c.phone || '–'} ${tagHtml}</div>
-      </div>`;
-    list.appendChild(div);
+// ─────────────────────────────────────────────
+// RECEIVER
+// ─────────────────────────────────────────────
+function initReceiver() {
+  const id = makeId();
+  document.getElementById('r-room').value = id;
+  setPill('r', 'wait', 'Connecting to relay…');
+
+  recvPeer = new Peer(id, { debug: 0 });
+
+  recvPeer.on('open', () => {
+    setPill('r', 'wait', 'Ready — waiting for sender');
+    setRStatus('Enter the Room ID on your phone then press Send', 'info');
   });
-  document.getElementById('totalBadge').textContent = contacts.length;
-  document.getElementById('selectedCount').textContent = selected.size + ' selected';
+
+  recvPeer.on('connection', (c) => {
+    recvConns.push(c);
+    setPill('r', 'on', 'Sender connected!');
+    setRStatus('🟢 Sender connected', 'ok');
+
+    c.on('data', (raw) => {
+      handleIncoming(raw);
+    });
+    c.on('close', () => {
+      setPill('r', 'wait', 'Sender disconnected — waiting…');
+      setRStatus('Sender disconnected. You can still receive from another device.', '');
+    });
+    c.on('error', (e) => {
+      setRStatus('Connection error: ' + e, 'err');
+    });
+  });
+
+  recvPeer.on('error', (e) => {
+    setPill('r', 'err', 'Error: ' + e.type);
+    setRStatus('Relay error — try refreshing', 'err');
+  });
+
+  recvPeer.on('disconnected', () => {
+    setPill('r', 'err', 'Disconnected');
+    recvPeer.reconnect();
+  });
 }
 
-function toggle(id) {
-  if (selected.has(id)) selected.delete(id); else selected.add(id);
-  renderContacts();
-  updatePreview();
+function newRoom() {
+  if (recvPeer) { recvPeer.destroy(); recvPeer = null; }
+  fileChunks = {};
+  initReceiver();
 }
 
-function selectAll() {
-  contacts.forEach(c => selected.add(c.id));
-  renderContacts(); updatePreview();
+function copyRoomId() {
+  const v = document.getElementById('r-room').value;
+  if (!v) return;
+  navigator.clipboard.writeText(v).then(() => {
+    setRStatus('Room ID copied! Paste it on your phone.', 'ok');
+    setTimeout(() => setRStatus('', ''), 3000);
+  });
 }
 
-function deselectAll() {
-  selected.clear();
-  renderContacts(); updatePreview();
+// toggle — just for UI feedback, listener is always on once initiated
+function toggleListen() {
+  const btn = document.getElementById('btn-listen');
+  isListening = !isListening;
+  if (isListening) {
+    btn.textContent = '■ Stop Listening';
+    btn.classList.add('listening');
+    if (!recvPeer) initReceiver();
+    setRStatus('Listening for incoming packets…', 'info');
+  } else {
+    btn.textContent = '▶ Start Listening';
+    btn.classList.remove('listening');
+    setRStatus('Stopped.', '');
+  }
 }
 
-function addContact() {
-  const name = document.getElementById('newName').value.trim();
-  const phone = document.getElementById('newPhone').value.trim().replace(/\D/g,'');
-  const tagRaw = document.getElementById('newTag').value.trim();
-  if (!name) { alert('Please enter a name.'); return; }
-  if (!phone || phone.length < 10) { alert('Please enter a valid 10-digit phone number.'); return; }
-  const tags = tagRaw ? [tagRaw.toUpperCase()] : [];
-  contacts.push({ id: nextId++, name, phone, tags });
-  document.getElementById('newName').value = '';
-  document.getElementById('newPhone').value = '';
-  document.getElementById('newTag').value = '';
-  renderContacts();
+// ─────────────────────────────────────────────
+// SENDER
+// ─────────────────────────────────────────────
+function connectToRoom(roomId) {
+  if (peer) { peer.destroy(); peer = null; }
+  const myId = makeId();
+  peer = new Peer(myId, { debug: 0 });
+  peer.on('open', () => {
+    conn = peer.connect(roomId, { reliable: true });
+    setPill('s', 'wait', 'Connecting…');
+
+    conn.on('open', () => {
+      setPill('s', 'on', 'Connected to ' + roomId);
+      setSStatus('🟢 Connected — ready to send', 'ok');
+    });
+    conn.on('error', (e) => {
+      setPill('s', 'err', 'Connection error');
+      setSStatus('Error: ' + e, 'err');
+    });
+    conn.on('close', () => {
+      setPill('s', 'err', 'Disconnected');
+      setSStatus('Connection closed.', 'err');
+    });
+  });
+  peer.on('error', (e) => {
+    setPill('s', 'err', 'Peer error');
+    setSStatus('Error: ' + e.type + ' — check the Room ID', 'err');
+  });
 }
 
-// ─── PREVIEW ───
-document.getElementById('msgTemplate').addEventListener('input', updatePreview);
-function updatePreview() {
-  const tpl = document.getElementById('msgTemplate').value;
-  const sample = selected.size > 0
-    ? contacts.find(c => selected.has(c.id))?.name || 'Friend'
-    : 'T. Sailaja';
-  const firstName = sample.replace(/^[A-Z]\.\s*/, '').split(' ')[0];
-  document.getElementById('previewBubble').textContent =
-    tpl.replace(/\{name\}/g, firstName);
-}
+document.getElementById('s-room').addEventListener('change', () => {
+  const v = document.getElementById('s-room').value.trim().toUpperCase();
+  document.getElementById('s-room').value = v;
+  if (v.length >= 4) connectToRoom(v);
+});
+document.getElementById('s-room').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const v = document.getElementById('s-room').value.trim().toUpperCase();
+    if (v.length >= 4) connectToRoom(v);
+  }
+});
 
-// ─── SEND ───
-let sending = false;
-
-async function startSending() {
-  if (sending) return;
-  const recipients = contacts.filter(c => selected.has(c.id) && c.phone);
-  if (recipients.length === 0) { alert('Please select contacts with phone numbers.'); return; }
-  const tpl = document.getElementById('msgTemplate').value.trim();
-  if (!tpl) { alert('Please enter a message template.'); return; }
-
-  sending = true;
-  document.getElementById('sendBtn').disabled = true;
-  const prog = document.getElementById('progressSection');
-  prog.classList.add('active');
-  const fill = document.getElementById('progressFill');
-  const txt = document.getElementById('progressText');
-  const log = document.getElementById('logBox');
-  log.innerHTML = '';
-
-  const delay = parseInt(document.getElementById('delayRange').value) * 1000;
-
-  for (let i = 0; i < recipients.length; i++) {
-    const c = recipients[i];
-    const firstName = c.name.replace(/^[A-Z]\.\s*/, '').split(' ')[0];
-    const msg = tpl.replace(/\{name\}/g, firstName);
-    const phone = '91' + c.phone.replace(/\D/g, '').slice(-10);
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-
-    const pct = Math.round(((i) / recipients.length) * 100);
-    fill.style.width = pct + '%';
-    txt.textContent = `Sending ${i+1} of ${recipients.length}: ${c.name}`;
-
-    const entry = document.createElement('div');
-    entry.className = 'log-entry';
-    entry.textContent = `→ Opening WhatsApp for ${c.name} (${c.phone})...`;
-    log.appendChild(entry);
-    log.scrollTop = log.scrollHeight;
-
-    // Open WhatsApp
-    window.open(url, '_blank');
-
-    if (i < recipients.length - 1) {
-      await new Promise(r => setTimeout(r, delay));
-    }
+async function doSend() {
+  if (!conn || !conn.open) {
+    const room = document.getElementById('s-room').value.trim().toUpperCase();
+    if (!room) { setSStatus('Enter the Room ID from your PC first', 'err'); return; }
+    connectToRoom(room);
+    setSStatus('Connecting… try again in a moment', 'info');
+    return;
   }
 
-  fill.style.width = '100%';
-  txt.textContent = `✅ Done! Opened ${recipients.length} WhatsApp chats.`;
-  const done = document.createElement('div');
-  done.className = 'log-entry';
-  done.textContent = `✅ All ${recipients.length} messages queued successfully!`;
-  log.appendChild(done);
+  const msg = document.getElementById('s-msg').value.trim();
+  const file = selectedFile;
 
-  sending = false;
-  document.getElementById('sendBtn').disabled = false;
+  if (!msg && !file) { setSStatus('Nothing to send — add text or a file', 'err'); return; }
+
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+
+  try {
+    if (msg) {
+      conn.send({ type: 'text', ts: Date.now(), msg });
+    }
+
+    if (file) {
+      if (file.size > 50 * 1024 * 1024) { setSStatus('File too large (max 50 MB)', 'err'); btn.disabled = false; return; }
+      await sendFileChunked(file);
+    }
+
+    btn.textContent = '✅ Sent!';
+    btn.classList.add('ok');
+    setSStatus('Delivered!', 'ok');
+
+    setTimeout(() => {
+      btn.textContent = '⚡ Send to PC';
+      btn.classList.remove('ok');
+      btn.disabled = false;
+      document.getElementById('s-msg').value = '';
+      clearFile();
+      setSStatus('', '');
+    }, 2500);
+
+  } catch(e) {
+    setSStatus('Send error: ' + e.message, 'err');
+    btn.disabled = false;
+    showProg(false);
+  }
 }
 
-// Init
-renderContacts();
-updatePreview();
+async function sendFileChunked(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const buf = reader.result;
+      const total = Math.ceil(buf.byteLength / CHUNK);
+      const uid = Math.random().toString(36).slice(2);
+
+      // header
+      conn.send({ type: 'file-start', uid, name: file.name, mime: file.type, size: file.size, total });
+
+      showProg(true);
+      let i = 0;
+
+      function sendNext() {
+        if (i >= total) {
+          conn.send({ type: 'file-end', uid });
+          showProg(false);
+          resolve();
+          return;
+        }
+        const chunk = buf.slice(i * CHUNK, (i + 1) * CHUNK);
+        conn.send({ type: 'file-chunk', uid, index: i, data: chunk });
+        const pct = Math.round(((i + 1) / total) * 100);
+        document.getElementById('prog-fill').style.width = pct + '%';
+        document.getElementById('prog-lbl').textContent = `Sending ${file.name} — ${pct}%`;
+        i++;
+        // Use setTimeout to avoid blocking UI
+        setTimeout(sendNext, 1);
+      }
+      sendNext();
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// ─────────────────────────────────────────────
+// INCOMING packet handling (receiver side)
+// ─────────────────────────────────────────────
+function handleIncoming(raw) {
+  if (!isListening) return; // ignore if stopped
+
+  if (raw.type === 'text') {
+    renderText(raw);
+    notifyNew('Message', raw.msg);
+  }
+  else if (raw.type === 'file-start') {
+    fileChunks[raw.uid] = { name: raw.name, mime: raw.mime, size: raw.size, total: raw.total, chunks: [] };
+  }
+  else if (raw.type === 'file-chunk') {
+    const fc = fileChunks[raw.uid];
+    if (fc) { fc.chunks[raw.index] = raw.data; }
+  }
+  else if (raw.type === 'file-end') {
+    const fc = fileChunks[raw.uid];
+    if (fc) {
+      const blob = new Blob(fc.chunks, { type: fc.mime });
+      renderFile(fc.name, fc.mime, blob);
+      notifyNew('File: ' + fc.name, fc.name);
+      delete fileChunks[raw.uid];
+    }
+  }
+}
+
+function renderText(data) {
+  removeEmpty();
+  inboxCount++;
+  document.getElementById('inbox-count').textContent = inboxCount;
+
+  const ts = new Date(data.ts);
+  const div = document.createElement('div');
+  div.className = 'pkt fresh';
+  const mid = 'msg-' + inboxCount;
+  const esc = data.msg.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  div.innerHTML = `
+    <div class="pkt-top"><span class="pkt-ico">💬</span><span class="pkt-time">${fmtTime(ts)}</span><span class="pkt-new">NEW</span></div>
+    <div class="pkt-msg" id="${mid}">${esc}</div>
+    <button class="btn-cp" onclick="cpText('${mid}',this)">📋 Copy</button>
+  `;
+  document.getElementById('packets').prepend(div);
+  setTimeout(() => div.classList.remove('fresh'), 5000);
+}
+
+function renderFile(name, mime, blob) {
+  removeEmpty();
+  inboxCount++;
+  document.getElementById('inbox-count').textContent = inboxCount;
+
+  const url = URL.createObjectURL(blob);
+  const isImg = mime && mime.startsWith('image/');
+  const ico = fileEmoji(mime);
+
+  const div = document.createElement('div');
+  div.className = 'pkt fresh';
+  div.innerHTML = `
+    <div class="pkt-top"><span class="pkt-ico">${ico}</span><span class="pkt-time">${fmtTime(new Date())}</span><span class="pkt-new">NEW</span></div>
+    <div class="pkt-file">
+      <span class="pkt-file-ico">${ico}</span>
+      <div class="pkt-finfo">
+        <div class="pkt-fname">${escHtml(name)}</div>
+        <div class="pkt-ftype">${escHtml(mime)}</div>
+      </div>
+      <a class="btn-dl" href="${url}" download="${escHtml(name)}" target="_blank">⬇ Save</a>
+    </div>
+    ${isImg ? `<img class="pkt-img" src="${url}" alt="${escHtml(name)}" loading="lazy">` : ''}
+  `;
+  document.getElementById('packets').prepend(div);
+  setTimeout(() => div.classList.remove('fresh'), 5000);
+}
+
+// ─────────────────────────────────────────────
+// File picker
+// ─────────────────────────────────────────────
+window.onFile = function(file) {
+  if (!file) return;
+  selectedFile = file;
+  document.getElementById('fbar').classList.add('show');
+  document.getElementById('fbar-ico').textContent = fileEmoji(file.type);
+  document.getElementById('fbar-name').textContent = file.name;
+  document.getElementById('fbar-size').textContent = fmtSize(file.size);
+
+  const pre = document.getElementById('img-pre');
+  if (file.type.startsWith('image/')) {
+    pre.src = URL.createObjectURL(file);
+    pre.classList.add('show');
+  } else { pre.classList.remove('show'); }
+};
+
+window.clearFile = function() {
+  selectedFile = null;
+  document.getElementById('fbar').classList.remove('show');
+  document.getElementById('img-pre').classList.remove('show');
+  document.getElementById('file-in').value = '';
+};
+
+// drag & drop
+const dz = document.getElementById('dz');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) onFile(e.dataTransfer.files[0]); });
+
+// ─────────────────────────────────────────────
+// Inbox controls
+// ─────────────────────────────────────────────
+window.clearInbox = function() {
+  document.querySelectorAll('.pkt').forEach(p => p.remove());
+  inboxCount = 0;
+  document.getElementById('inbox-count').textContent = '0';
+  document.getElementById('empty').style.display = '';
+};
+
+window.cpText = function(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy', 2000);
+  });
+};
+
+function removeEmpty() {
+  const e = document.getElementById('empty');
+  if (e) e.style.display = 'none';
+}
+
+// ─────────────────────────────────────────────
+// Notifications
+// ─────────────────────────────────────────────
+function notifyNew(title, body) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') Notification.requestPermission();
+  if (Notification.permission === 'granted') {
+    new Notification('DropBeam — ' + title, { body: String(body).slice(0, 80) });
+  }
+}
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+function makeId() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return 'DB-' + Array.from({length:6}, () => c[Math.floor(Math.random()*c.length)]).join('');
+}
+
+function setPill(side, state, txt) {
+  const el = document.getElementById(side + '-pill');
+  const tEl = document.getElementById(side + '-pill-txt');
+  el.className = 'pill ' + state;
+  tEl.textContent = txt;
+}
+
+function setSStatus(txt, cls) {
+  const el = document.getElementById('s-status');
+  el.textContent = txt; el.className = 'status-msg ' + (cls||'');
+}
+function setRStatus(txt, cls) {
+  const el = document.getElementById('r-status');
+  el.textContent = txt; el.className = 'status-msg ' + (cls||'');
+}
+function showProg(show) {
+  document.getElementById('prog-wrap').classList.toggle('show', show);
+  if (!show) { document.getElementById('prog-fill').style.width = '0%'; }
+}
+function fmtTime(d) { return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
+function fmtSize(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(2) + ' MB';
+}
+function fileEmoji(t) {
+  if (!t) return '📄';
+  if (t.startsWith('image/')) return '🖼️';
+  if (t.startsWith('video/')) return '🎬';
+  if (t.startsWith('audio/')) return '🎵';
+  if (t.includes('pdf')) return '📕';
+  if (t.includes('zip')||t.includes('rar')||t.includes('7z')) return '🗜️';
+  if (t.includes('word')||t.includes('doc')) return '📝';
+  if (t.includes('sheet')||t.includes('excel')||t.includes('csv')) return '📊';
+  return '📄';
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
